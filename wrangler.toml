@@ -3,6 +3,13 @@ name = "lazer-state-sync"
 main = "src/index.ts"
 compatibility_date = "2025-01-09"
 
+# Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
+# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#kv-namespaces
+kv_namespaces = [
+	{binding = "MATCH_STATES", id = "bf4c22a810814b458b9a7e6095dbc369"},
+	{binding = "MATCH_AUTH_MAPPINGS", id = "f29d7c601f0941b0b43ad7ab9f471d28"}
+]
+
 # Workers Logs
 # Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/
 # Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
@@ -70,12 +77,6 @@ enabled = true
 # [[hyperdrive]]
 # binding = "MY_HYPERDRIVE"
 # id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-# Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
-# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#kv-namespaces
-[[kv_namespaces]]
-binding = "MATCH_STATES"
-id = "bf4c22a810814b458b9a7e6095dbc369"
 
 # Bind an mTLS certificate. Use to present a client certificate when communicating with another service.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#mtls-certificates

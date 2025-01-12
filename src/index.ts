@@ -17,7 +17,7 @@ interface Env {
 	// ... other binding types
 }
 
-async function update_state(request: Request<unknown, IncomingRequestCfProperties<unknown>>, env: Env) {
+async function update_state(request: Request, env: Env) {
 	if (request.headers.get('Content-Type') !== 'application/json')
 		return new Response('Unsupported Content-Type. ', { status: 415, headers: { 'Allow': 'application/json' } });
 
@@ -44,7 +44,7 @@ async function update_state(request: Request<unknown, IncomingRequestCfPropertie
 }
 
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
+	async fetch(request, env, ..._): Promise<Response> {
 		try {
 			if (request.method === 'POST')
 				return await update_state(request, env);

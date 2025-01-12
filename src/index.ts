@@ -46,9 +46,10 @@ async function update_state(request: Request<unknown, IncomingRequestCfPropertie
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		try {
-			if (request.method === 'POST') {
+			if (request.method === 'POST')
 				return await update_state(request, env);
-			} else if (request.method === 'GET') {
+
+			if (request.method === 'GET') {
 				const url = new URL(request.url);
 				const key = url.pathname.slice(1); // Remove leading slash
 
@@ -61,6 +62,8 @@ export default {
 
 				return Response.json(JSON.parse(value));
 			}
+
+			return Response.json({ 'error': 'Unsupported method.' }, { status: 405 });
 		} catch (err) {
 			// In a production application, you could instead choose to retry your KV
 			// read or fall back to a default code path.

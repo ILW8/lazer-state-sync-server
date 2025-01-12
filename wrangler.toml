@@ -1,6 +1,7 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "lazer-state-sync"
 main = "src/index.ts"
+compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2025-01-09"
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.

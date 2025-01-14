@@ -30,13 +30,13 @@ async function update_state(request: Request, env: Env) {
 		return Response.json({ error: 'Invalid JSON body.' }, { status: 400 });
 	}
 
-	const authHeader = request.headers.get('Authentication');
+	const authHeader = request.headers.get('Authorization');
 	if (!authHeader)
-		return Response.json({ error: 'Missing Authentication header.' }, { status: 401 });
+		return Response.json({ error: 'Missing Authorization header.' }, { status: 401 });
 
 	const tournament_id = await env.MATCH_AUTH_MAPPINGS.get(authHeader);
 	if (tournament_id == null)
-		return Response.json({ error: 'Invalid Authentication header.' }, { status: 401 });
+		return Response.json({ error: 'Invalid Authorization header.' }, { status: 401 });
 
 	await env.MATCH_STATES.put(`${tournament_id}/${match_id}`, JSON.stringify(body));
 

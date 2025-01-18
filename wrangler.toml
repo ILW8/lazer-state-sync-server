@@ -28,8 +28,10 @@ enabled = true
 # - https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 # Note: Use secrets to store sensitive data.
 # - https://developers.cloudflare.com/workers/configuration/secrets/
-# [vars]
-# MY_VARIABLE = "production_value"
+ [vars]
+ S3_ENDPOINT = "https://gateway.storjshare.io"
+ BUCKET_NAME = "match-state-sync"
+ LINKSHARE_PREFIX = "https://link.storjshare.io/s/jwtursvlosrzw4o6b3zpoy77i2ya/match-state-sync"
 
 # Bind the Workers AI model catalog. Run machine learning models, powered by serverless GPUs, on Cloudflare’s global network
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#workers-ai

@@ -11,10 +11,20 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import {
+	S3Client,
+	PutObjectCommand,
+	S3ClientConfig
+} from '@aws-sdk/client-s3';
+
 interface Env {
-	MATCH_STATES: KVNamespace;
 	MATCH_AUTH_MAPPINGS: KVNamespace;
-	// ... other binding types
+
+	S3_ACCESS_KEY: string;
+	S3_SECRET_KEY: string;
+	S3_ENDPOINT: string;
+	BUCKET_NAME: string;
+	LINKSHARE_PREFIX: string;
 }
 
 async function update_state(request: Request, env: Env) {
@@ -38,9 +48,35 @@ async function update_state(request: Request, env: Env) {
 	if (tournament_id == null)
 		return Response.json({ error: 'Invalid Authorization header.' }, { status: 401 });
 
-	await env.MATCH_STATES.put(`${tournament_id}/${match_id}`, JSON.stringify(body));
+	// await env.MATCH_STATES.put(`${tournament_id}/${match_id}`, JSON.stringify(body));
+	const success = await upload_file_s3(`${tournament_id}/${match_id}`, body, env);
 
-	return new Response(null, { status: 201 });
+	return new Response(null, { status: success ? 201 : 500 });
+}
+
+async function upload_file_s3(key: string, content: object, env:Env) {
+// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3"); // CommonJS import
+	const config: S3ClientConfig = {
+		credentials: { accessKeyId: env.S3_ACCESS_KEY, secretAccessKey: env.S3_SECRET_KEY },
+		endpoint: env.S3_ENDPOINT,
+		region: 'us-east-1'
+	};
+	// noinspection TypeScriptValidateTypes
+	const client = new S3Client(config);
+	const command = new PutObjectCommand({
+		"Body": JSON.stringify(content),
+		"Bucket": env.BUCKET_NAME,
+		"Key": key
+	});
+	try {
+		// noinspection TypeScriptValidateTypes
+		await client.send(command);
+	} catch (err) {
+		console.error(`failed uploading object: ${err}`);
+		return false;
+	}
+
+	return true;
 }
 
 export default {
@@ -56,11 +92,9 @@ export default {
 				if (key == null || key === '')
 					return Response.json({ 'error': 'Invalid path.' }, { status: 400 });
 
-				const value = await env.MATCH_STATES.get(key);
-				if (value == null)
-					return Response.json({ 'error': `Match \'${key}\' not found` }, { status: 404 });
-
-				return Response.json(JSON.parse(value));
+				const target = new URL(key, env.LINKSHARE_PREFIX.endsWith('/') ? env.LINKSHARE_PREFIX : env.LINKSHARE_PREFIX + '/');
+				target.searchParams.set('download', '1');
+				return Response.redirect(target.toString(), 302);
 			}
 
 			return Response.json({ 'error': 'Unsupported method.' }, { status: 405 });
